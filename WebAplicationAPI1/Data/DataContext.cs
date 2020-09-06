@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using WebAplicationAPI1.Domain;
 
 namespace WebAplicationAPI1.Data
 {
@@ -12,5 +13,7 @@ namespace WebAplicationAPI1.Data
             : base(options)
         {
         }
+
+        public virtual DbSet<Post> Posts { get; set; }
     }
 }

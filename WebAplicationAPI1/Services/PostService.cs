@@ -1,56 +1,57 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebAplicationAPI1.Data;
 using WebAplicationAPI1.Domain;
 
 namespace WebAplicationAPI1.Services
 {
     public class PostService : IPostService
     {
-        private readonly List<Post> _posts;
-        public PostService()
+        private readonly DataContext _dataContext;
+        public PostService(DataContext dataContext)
         {
-            _posts = new List<Post>();
-            for (int i = 0; i < 5; i++)
-            {
-                _posts.Add(new Post { Id = Guid.NewGuid(), Name = $"Post {i}" });
-
-            }
+            _dataContext = dataContext;
+           
         }
 
-        public bool DeletePost(Guid postId)
+        public async Task<bool> DeletePost_Async(Guid postId)
         {
-            var post = Get(postId);
-            if (post == null)
-            {
-                return false;
-            }
-            _posts.Remove(post);
-            return true;
+            var post = await Get_Async(postId);
+            _dataContext.Posts.Remove(post);
+            return  await _dataContext.SaveChangesAsync()>0;
         }
 
-        public Post Get(Guid postId)
+        public async Task<Post> Get_Async(Guid postId)
         {
-            return _posts.SingleOrDefault(x => x.Id == postId);
+            return await _dataContext.Posts.SingleOrDefaultAsync(x => x.Id == postId);
         }
 
-        public List<Post> GetAll()
+        public async Task<List<Post>> GetAll_Async()
         {
-            return _posts;
+            return await _dataContext.Posts.ToListAsync();
         }
 
-        public bool UpdatePost(Post updatePost)
+        public async Task<bool> UpdatePost_Async(Post updatePost)
         {
-            var exists=Get(updatePost.Id)!=null;
-            if (!exists)
-            {
-                return false;
-            }
-            var index = _posts.FindIndex(x => x.Id == updatePost.Id);
-            _posts[index] = updatePost;
-            return true;
+            _dataContext.Posts.Update(updatePost);
 
+            return await _dataContext.SaveChangesAsync()>0;
+
+        }
+        public async Task<bool>  Create_Async(Post post)
+        {
+            await _dataContext.Posts.AddAsync(post);
+            return await _dataContext.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UserOwnsPos_Async(Guid postId, string UserID)
+        {
+            var post = await _dataContext.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId && x.UserId == UserID);
+            if (post != null) { return true; }
+            return false;
         }
     }
 }
