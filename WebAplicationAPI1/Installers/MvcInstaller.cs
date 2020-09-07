@@ -28,6 +28,18 @@
             // configure jwt
             var jwtSettings = new JwtSettings();
             configuration.Bind(nameof(JwtSettings), jwtSettings);
+
+            var tokenValidationParamaters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Secret)),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                RequireExpirationTime = false,
+                ValidateLifetime = false
+
+            };
+            services.AddSingleton(tokenValidationParamaters);
             services.AddSingleton(jwtSettings);
             services.AddAuthentication(x =>
             {
@@ -39,16 +51,7 @@
             .AddJwtBearer(x =>
             {
                 x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Secret)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    RequireExpirationTime = false,
-                    ValidateLifetime = false
-
-                };
+                x.TokenValidationParameters = tokenValidationParamaters;
             });
             //
             //add indentity

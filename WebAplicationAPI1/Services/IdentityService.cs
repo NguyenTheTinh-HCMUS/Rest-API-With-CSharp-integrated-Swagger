@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using WebAplicationAPI1.Data;
 using WebAplicationAPI1.Domain;
 using WebAplicationAPI1.Options;
 
@@ -17,14 +19,18 @@ namespace WebAplicationAPI1.Services
         #region Create Property
         private readonly UserManager<IdentityUser> _userManager;
         private readonly JwtSettings _JwtSettings;
+        private readonly TokenValidationParameters _tokenValidationParameters;
+        private readonly DataContext _dataContext;
 
         #endregion
 
         #region Constructors
-        public IdentityService(UserManager<IdentityUser> userManager, JwtSettings jwtSettings)
+        public IdentityService(UserManager<IdentityUser> userManager, JwtSettings jwtSettings, TokenValidationParameters tokenValidationParameters, DataContext dataContext)
         {
             _userManager = userManager;
             _JwtSettings = jwtSettings;
+            _tokenValidationParameters = tokenValidationParameters;
+            _dataContext = dataContext;
 
         }
 
@@ -32,8 +38,8 @@ namespace WebAplicationAPI1.Services
         #endregion
 
 
-        #region create Token
-        private AuthenticationResult GennerateAuthenticationResult(IdentityUser user)
+        #region functions
+        private async Task <AuthenticationResult> GennerateAuthenticationResult_Async(IdentityUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_JwtSettings.Secret);
@@ -48,17 +54,49 @@ namespace WebAplicationAPI1.Services
                         new Claim("id", user.Id)
                     }
                 ),
-                Expires = DateTime.UtcNow.AddHours(2),
+                Expires = DateTime.UtcNow.Add(_JwtSettings.TokenLifeTime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
+            var refreshToken = new RefreshToken { 
+                JwtId=token.Id,
+                UserId=user.Id,
+                CreationDate=DateTime.UtcNow,
+                ExpiryDate=DateTime.UtcNow.AddMonths(6),
+                Token= Guid.NewGuid().ToString()
+        };
+            await _dataContext.RefreshTokens.AddAsync(refreshToken);
+            await _dataContext.SaveChangesAsync();
             return new AuthenticationResult
             {
                 Token = tokenHandler.WriteToken(token),
-                Success = true
-
+                Success = true,
+                RefreshToken=refreshToken.Token
             };
+        }
+        private ClaimsPrincipal GetPrincipalFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, _tokenValidationParameters, out var validatedToken);
+                if (!IsJwtWithValidSecurityAlgorithm(validatedToken))
+                {
+                    return null;
+
+                }
+                return principal;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
+        {
+            return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
+                    jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,StringComparison.InvariantCultureIgnoreCase) ;
         }
         #endregion
 
@@ -83,7 +121,7 @@ namespace WebAplicationAPI1.Services
                     Errors = createUser.Errors.Select(x => x.Description)
                 };
             }
-            return GennerateAuthenticationResult(newUser);
+            return await GennerateAuthenticationResult_Async(newUser);
 
         }
 
@@ -100,9 +138,58 @@ namespace WebAplicationAPI1.Services
                 return new AuthenticationResult { Errors = new[] { "User/Password combination is wrong" } };
 
             }
-            return GennerateAuthenticationResult(exitstingUser);
+            return await GennerateAuthenticationResult_Async(exitstingUser);
 
         }
+
+        public async Task<AuthenticationResult> RefreshToken_Async(string token, string refreshToken)
+        {
+            var validatedToken = GetPrincipalFromToken(token);
+            if (validatedToken == null)
+            {
+                return new AuthenticationResult {
+                    Errors = new[] { "Invalid token" }
+                };
+            }
+            var expiryDateunix = long.Parse(validatedToken.Claims.Single(x=>x.Type==JwtRegisteredClaimNames.Exp).Value);
+            var expiryDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                                                       .AddSeconds(expiryDateunix);
+                                                      
+            if(expiryDateTimeUtc> DateTime.UtcNow)
+            {
+                return new AuthenticationResult { Errors = new[] { "This token hasn't expired yet" } };
+            }
+            var jti = validatedToken.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
+
+            var storedRefreshToken = await _dataContext.RefreshTokens.SingleOrDefaultAsync(x => x.Token == refreshToken);
+            if (storedRefreshToken == null)
+            {
+                return new AuthenticationResult { Errors = new[] { "This Refreshtoken not exist" } };
+            }
+            if (DateTime.UtcNow > storedRefreshToken.ExpiryDate)
+            {
+                return new AuthenticationResult { Errors = new[] { "This refresh token has expired" } };
+            }
+            if (storedRefreshToken.Invalidated)
+            {
+                return new AuthenticationResult { Errors = new[] { "This refresh token has been invalidated" } };
+            }
+            if (storedRefreshToken.Used)
+            {
+                return new AuthenticationResult { Errors = new[] { "This refresh token has been Used" } };
+            }
+            if (storedRefreshToken.JwtId!=jti)
+            {
+                return new AuthenticationResult { Errors = new[] { "This refresh token dose  not match JWT" } };
+            }
+            storedRefreshToken.Used = true;
+            _dataContext.RefreshTokens.Update(storedRefreshToken);
+            await _dataContext.SaveChangesAsync();
+            var user = await _userManager.FindByIdAsync(validatedToken.Claims.Single(x => x.Type == "id").Value);
+            return await GennerateAuthenticationResult_Async(user);
+        }
+
+
 
         #endregion
 

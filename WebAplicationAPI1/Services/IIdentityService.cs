@@ -10,6 +10,7 @@ namespace WebAplicationAPI1.Services
     {
         Task<AuthenticationResult> Register_Async(string email, string password);
         Task<AuthenticationResult> Login_Async(string email, string password);
+        Task<AuthenticationResult> RefreshToken_Async(string token,string refreshToken);
 
     }
 }

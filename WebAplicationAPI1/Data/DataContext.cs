@@ -15,5 +15,6 @@ namespace WebAplicationAPI1.Data
         }
 
         public virtual DbSet<Post> Posts { get; set; }
+        public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }
