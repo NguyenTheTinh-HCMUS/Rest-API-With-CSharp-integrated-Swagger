@@ -15,7 +15,7 @@ using WebAplicationAPI1.Services;
 
 namespace WebAplicationAPI1.Controllers.V1
 {
-    [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PostController : Controller
     {
         #region Properties
