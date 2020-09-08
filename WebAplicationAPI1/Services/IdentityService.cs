@@ -43,17 +43,17 @@ namespace WebAplicationAPI1.Services
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_JwtSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new System.Security.Claims.ClaimsIdentity
-                (
-                    new[] {
+            var claims = new List<Claim> {
                         new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                         new Claim(JwtRegisteredClaimNames.Email, user.Email),
                         new Claim("id", user.Id)
-                    }
-                ),
+                    };
+            var userClaim = await _userManager.GetClaimsAsync(user);
+            claims.AddRange(userClaim);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new System.Security.Claims.ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.Add(_JwtSettings.TokenLifeTime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 
@@ -108,8 +108,10 @@ namespace WebAplicationAPI1.Services
             {
                 return new AuthenticationResult { Errors = new[] { "User with this email address already exists" } };
             }
+            var newUserId = Guid.NewGuid();
             var newUser = new IdentityUser
             {
+                Id=newUserId.ToString(),
                 Email = email,
                 UserName = email
             };
@@ -121,6 +123,7 @@ namespace WebAplicationAPI1.Services
                     Errors = createUser.Errors.Select(x => x.Description)
                 };
             }
+            await _userManager.AddClaimAsync(newUser, new Claim("tags.view", "true"));
             return await GennerateAuthenticationResult_Async(newUser);
 
         }

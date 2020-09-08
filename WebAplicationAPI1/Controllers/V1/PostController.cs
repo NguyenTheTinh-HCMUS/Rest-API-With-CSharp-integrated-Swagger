@@ -75,13 +75,14 @@ namespace WebAplicationAPI1.Controllers.V1
         public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)
         {
             var post = new Post();
+            Guid newID = Guid.NewGuid();
             if (postRequest != null && !string.IsNullOrEmpty(postRequest.Name))
             {
+                post.Id = newID;
                 post.Name = postRequest.Name;
                 post.UserId = HttpContext.GetUserId();
+                post.Tags = postRequest.Tags.Select(x => new PostTag { TagName = x.ToUpper(),PostId= newID }).ToList();
             }
-
-
             await _postService.Create_Async(post);
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());

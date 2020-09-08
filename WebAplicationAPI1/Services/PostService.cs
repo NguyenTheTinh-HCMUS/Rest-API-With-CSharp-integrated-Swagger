@@ -11,6 +11,22 @@ namespace WebAplicationAPI1.Services
     public class PostService : IPostService
     {
         private readonly DataContext _dataContext;
+        #region Functions
+        private async Task AddNewTags(Post post)
+        {
+            foreach (var tag in post.Tags)
+            {
+                var existingTag =
+                    await _dataContext.Tags.SingleOrDefaultAsync(x =>
+                        x.Name == tag.TagName.ToUpper());
+                if (existingTag != null)
+                    continue;
+
+                await _dataContext.Tags.AddAsync(new Tag
+                { Name = tag.TagName.ToUpper(), CreatedOn = DateTime.UtcNow, CreatorId = post.UserId });
+            }
+        }
+        #endregion
         public PostService(DataContext dataContext)
         {
             _dataContext = dataContext;
@@ -44,6 +60,7 @@ namespace WebAplicationAPI1.Services
         public async Task<bool>  Create_Async(Post post)
         {
             await _dataContext.Posts.AddAsync(post);
+            await AddNewTags(post);
             return await _dataContext.SaveChangesAsync() > 0;
         }
 
@@ -52,6 +69,11 @@ namespace WebAplicationAPI1.Services
             var post = await _dataContext.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId && x.UserId == UserID);
             if (post != null) { return true; }
             return false;
+        }
+
+        public async Task<List<Tag>> GetAllTags_Async()
+        {
+            return await _dataContext.Tags.ToListAsync(); 
         }
     }
 }

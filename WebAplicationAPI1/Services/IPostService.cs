@@ -14,5 +14,6 @@ namespace WebAplicationAPI1.Services
         Task<bool> DeletePost_Async(Guid postId);
         Task<bool> Create_Async(Post post);
         Task<bool> UserOwnsPos_Async(Guid postId,string UserID);
+        Task<List<Tag>> GetAllTags_Async();
     }
 }

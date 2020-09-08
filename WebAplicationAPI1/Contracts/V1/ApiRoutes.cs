@@ -33,6 +33,10 @@ namespace WebAplicationAPI1.Contracts.V1
 
 
         }
+        public static class Tags
+        {
+            public const string GetAll = Base + "/Tags";
+        }
     }
 
 

@@ -31,6 +31,11 @@ namespace WebAplicationAPI1.Services
             return response.IsSuccess;
         }
 
+        public Task<List<Tag>> GetAllTags_Async()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<List<Post>> GetAll_Async()
         {
             var posts = await _cosmosStore.Query().ToListAsync();

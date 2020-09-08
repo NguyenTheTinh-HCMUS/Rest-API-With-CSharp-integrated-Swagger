@@ -16,5 +16,6 @@ namespace WebAplicationAPI1.Domain
         public string UserId { get; set; }
         [ForeignKey(nameof(UserId))]
         public virtual IdentityUser User { get; set; }
+        public virtual List<PostTag> Tags { get; set; }
     }
 }
