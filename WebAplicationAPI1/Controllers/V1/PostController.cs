@@ -34,6 +34,7 @@ namespace WebAplicationAPI1.Controllers.V1
         #endregion
         #region Main Hanlders
         [HttpGet(ApiRoutes.Posts.GetAll)]
+        [Authorize(Policy = "MustWorkForThetinh")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _postService.GetAll_Async());
@@ -91,6 +92,7 @@ namespace WebAplicationAPI1.Controllers.V1
 
         }
         [HttpDelete(ApiRoutes.Posts.Delete)]
+        [Authorize(Roles ="Admin",Policy = "MustWorkForThetinh")]
         public async Task<IActionResult> Delete([FromRoute] Guid postId)
         {
             var userOwnsPost = await _postService.UserOwnsPos_Async(postId, HttpContext.GetUserId());

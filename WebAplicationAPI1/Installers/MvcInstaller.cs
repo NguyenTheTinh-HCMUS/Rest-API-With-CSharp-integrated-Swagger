@@ -1,6 +1,7 @@
 ﻿namespace WebAplicationAPI1.Installers
 {
     using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Logging;
@@ -8,6 +9,7 @@
     using Microsoft.OpenApi.Models;
     using System.Collections.Generic;
     using System.Text;
+    using WebAplicationAPI1.Authorization;
     using WebAplicationAPI1.Options;
     using WebAplicationAPI1.Services;
 
@@ -53,13 +55,18 @@
                 x.SaveToken = true;
                 x.TokenValidationParameters = tokenValidationParamaters;
             });
-            //
+            // authorizations
             services.AddAuthorization(options => {
-                options.AddPolicy("TagViewer", builder =>
-                {
-                    builder.RequireClaim("tags.view","true");
+                //options.AddPolicy("TagViewer", builder =>
+                //{
+                //    builder.RequireClaim("tags.view","true");
+                //});
+
+                options.AddPolicy("MustWorkForThetinh", policy=> {
+                    policy.AddRequirements(new WorksForCompanyRequirement(".thetinh.com"));
                 });
             });
+            services.AddSingleton<IAuthorizationHandler, WorksForCompanyHandler>();
             //add indentity
             services.AddScoped<IIdentityService,IdentityService>();
             IdentityModelEventSource.ShowPII = true;

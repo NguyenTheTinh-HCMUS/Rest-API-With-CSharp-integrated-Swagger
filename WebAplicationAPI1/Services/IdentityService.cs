@@ -49,8 +49,13 @@ namespace WebAplicationAPI1.Services
                         new Claim(JwtRegisteredClaimNames.Email, user.Email),
                         new Claim("id", user.Id)
                     };
+            // add all claims of userIdentity
             var userClaim = await _userManager.GetClaimsAsync(user);
             claims.AddRange(userClaim);
+            // add all roles of userIdentity
+            var roles = await _userManager.GetRolesAsync(user);
+            claims.AddRange(roles.Select(role => new Claim (ClaimsIdentity.DefaultRoleClaimType, role)));
+            //
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new System.Security.Claims.ClaimsIdentity(claims),
@@ -123,7 +128,7 @@ namespace WebAplicationAPI1.Services
                     Errors = createUser.Errors.Select(x => x.Description)
                 };
             }
-            await _userManager.AddClaimAsync(newUser, new Claim("tags.view", "true"));
+            //await _userManager.AddClaimAsync(newUser, new Claim("tags.view", "true"));
             return await GennerateAuthenticationResult_Async(newUser);
 
         }
@@ -191,9 +196,6 @@ namespace WebAplicationAPI1.Services
             var user = await _userManager.FindByIdAsync(validatedToken.Claims.Single(x => x.Type == "id").Value);
             return await GennerateAuthenticationResult_Async(user);
         }
-
-
-
         #endregion
 
 

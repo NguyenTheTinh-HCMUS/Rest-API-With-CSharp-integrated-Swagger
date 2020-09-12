@@ -24,7 +24,6 @@ namespace WebAplicationAPI1.Controllers.V1
 
         #region Main Handlers
         [HttpGet(ApiRoutes.Tags.GetAll)]
-        [Authorize(Policy = "TagViewer")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _postService.GetAllTags_Async());
