@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,14 +21,15 @@ namespace WebAplicationAPI1.Controllers.V1
     {
         #region Properties
         private readonly IPostService _postService;
+        private readonly IMapper _mapper;
 
 
         #endregion
         #region Contructors
-        public PostController(IPostService postService)
+        public PostController(IPostService postService,IMapper mapper)
         {
             _postService = postService;
-
+            _mapper = mapper;
 
         }
 
@@ -37,7 +39,8 @@ namespace WebAplicationAPI1.Controllers.V1
         [Authorize(Policy = "MustWorkForThetinh")]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _postService.GetAll_Async());
+            var posts = await _postService.GetAll_Async();
+            return Ok(_mapper.Map<List<PostResponse>>(posts));
         }
         [HttpGet(ApiRoutes.Posts.Get)]
         public async Task<IActionResult> Get([FromRoute] Guid postId)
@@ -47,7 +50,7 @@ namespace WebAplicationAPI1.Controllers.V1
             {
                 return NotFound();
             }
-            return Ok(post);
+            return Ok(_mapper.Map<PostResponse>(post));
 
         }
         [HttpPut(ApiRoutes.Posts.Update)]
@@ -87,8 +90,8 @@ namespace WebAplicationAPI1.Controllers.V1
             await _postService.Create_Async(post);
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
-            var response = new CreatePostResponse { Id = post.Id };
-            return Created(locationUri, response);
+            //var response = new PostResponse { Id = post.Id };
+            return Created(locationUri, _mapper.Map<PostResponse>(post));
 
         }
         [HttpDelete(ApiRoutes.Posts.Delete)]

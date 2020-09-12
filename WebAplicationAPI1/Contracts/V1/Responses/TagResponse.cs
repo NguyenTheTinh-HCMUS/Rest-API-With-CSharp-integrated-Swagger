@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace WebAplicationAPI1.Contracts.V1.Responses
 {
-    public class CreatePostResponse
+    public class TagResponse
     {
-        public Guid Id { get; set; }
+        public string Name { get; set; }
     }
 }

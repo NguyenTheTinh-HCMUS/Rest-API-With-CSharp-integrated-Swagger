@@ -42,12 +42,12 @@ namespace WebAplicationAPI1.Services
 
         public async Task<Post> Get_Async(Guid postId)
         {
-            return await _dataContext.Posts.SingleOrDefaultAsync(x => x.Id == postId);
+            return await _dataContext.Posts.Include(x=>x.Tags).SingleOrDefaultAsync(x => x.Id == postId);
         }
 
         public async Task<List<Post>> GetAll_Async()
         {
-            return await _dataContext.Posts.ToListAsync();
+            return await _dataContext.Posts.Include(x=>x.Tags).ToListAsync();
         }
 
         public async Task<bool> UpdatePost_Async(Post updatePost)

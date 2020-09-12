@@ -16,6 +16,7 @@ using WebAplicationAPI1.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Security.Policy;
 using WebAplicationAPI1.Installers;
+using AutoMapper;
 
 namespace WebAplicationAPI1
 {
@@ -32,6 +33,8 @@ namespace WebAplicationAPI1
         public void ConfigureServices(IServiceCollection services)
         {
             services.InstallServiceInAssembly(Configuration);
+            //mapper
+            services.AddAutoMapper(typeof(Startup));
           
             
         }
