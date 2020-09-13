@@ -54,8 +54,11 @@ namespace WebAplicationAPI1.Controllers.V1
                 }
                 );
         }
-
-
+        /// <summary>
+        ///  Login into application
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">Faild</response>
         [HttpPost(ApiRoutes.Identity.Login)]
         public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
         {

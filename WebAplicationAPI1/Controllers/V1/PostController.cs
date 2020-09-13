@@ -75,7 +75,15 @@ namespace WebAplicationAPI1.Controllers.V1
             return Ok(post);
 
         }
+        /// <summary>
+        /// Create Post 
+        /// </summary>
+        /// <response code="201">Create the pots is success</response>
+        /// <response code="400">Create the post is faild</response>
+
         [HttpPost(ApiRoutes.Posts.Create)]
+        [ProducesResponseType(typeof(PostResponse),201)]
+        [ProducesResponseType(typeof(ErrorResponse),400)]
         public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)
         {
             var post = new Post();
@@ -87,7 +95,11 @@ namespace WebAplicationAPI1.Controllers.V1
                 post.UserId = HttpContext.GetUserId();
                 post.Tags = postRequest.Tags.Select(x => new PostTag { TagName = x.ToUpper(),PostId= newID }).ToList();
             }
-            await _postService.Create_Async(post);
+            if(!(await _postService.Create_Async(post)))
+            {
+                return BadRequest(new ErrorResponse { Errors=new List<ErrorModel> { new ErrorModel { FieldName="",Message="Handler does not success"} } });
+
+            }
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
             //var response = new PostResponse { Id = post.Id };

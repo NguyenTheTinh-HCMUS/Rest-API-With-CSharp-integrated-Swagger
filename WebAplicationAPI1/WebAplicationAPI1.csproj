@@ -5,6 +5,10 @@
     <UserSecretsId>aspnet-WebAplicationAPI1-E2AF6E87-9845-41AF-BB3F-8C3E1E497760</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarm);1591</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
@@ -18,6 +22,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.6" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="5.1.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SwaggerExamples\Responses\" />
   </ItemGroup>
 
 </Project>
