@@ -79,8 +79,6 @@ namespace WebAplicationAPI1
 
             app.UseEndpoints(endpoints =>
             {
-
-
                 endpoints.MapControllers();
             }); 
 

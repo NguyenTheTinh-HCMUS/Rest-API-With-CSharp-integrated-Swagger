@@ -1,5 +1,6 @@
 ﻿namespace WebAplicationAPI1.Installers
 {
+    using FluentValidation.AspNetCore;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.Extensions.Configuration;
@@ -10,6 +11,7 @@
     using System.Collections.Generic;
     using System.Text;
     using WebAplicationAPI1.Authorization;
+    using WebAplicationAPI1.Filters;
     using WebAplicationAPI1.Options;
     using WebAplicationAPI1.Services;
 
@@ -72,7 +74,13 @@
             IdentityModelEventSource.ShowPII = true;
 
 
-            services.AddMvc().SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
+            services.AddMvc(options=>
+                {
+                    options.EnableEndpointRouting = false;
+                    options.Filters.Add<ValidationFilter>();
+                })
+                .AddFluentValidation(mvcConfiguration=>mvcConfiguration.RegisterValidatorsFromAssemblyContaining<Startup>())
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
             services.AddSwaggerGen(x =>
             {
                 var security = new OpenApiSecurityRequirement{
