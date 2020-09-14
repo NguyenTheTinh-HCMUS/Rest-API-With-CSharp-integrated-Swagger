@@ -72,7 +72,7 @@ namespace WebAplicationAPI1.Controllers.V1
             {
                 return NotFound();
             }
-            return Ok(post);
+            return Ok(_mapper.Map<PostResponse>(post));
 
         }
         /// <summary>

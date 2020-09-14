@@ -27,5 +27,8 @@
   <ItemGroup>
     <Folder Include="SwaggerExamples\Responses\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TweetBooks.Contracts\TweetBooks.Contracts.csproj" />
+  </ItemGroup>
 
 </Project>

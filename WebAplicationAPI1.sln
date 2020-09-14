@@ -5,7 +5,13 @@ VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAplicationAPI1", "WebAplicationAPI1\WebAplicationAPI1.csproj", "{30CB13CD-CE0A-4A19-A0FF-B6B402E0DBBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TweetBook.IntergrationTest", "TweetBook.IntergrationTest\TweetBook.IntergrationTest.csproj", "{C367A516-46B3-4D6E-922F-F40DEC734197}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TweetBook.IntergrationTest", "TweetBook.IntergrationTest\TweetBook.IntergrationTest.csproj", "{C367A516-46B3-4D6E-922F-F40DEC734197}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TweetBook.Sdk", "TweetBook.Sdk\TweetBook.Sdk.csproj", "{A3512376-B0F3-4279-B4EF-DAEF441E1E45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TweetBook.Sdk.Sample", "TweetBook.Sdk.Sample\TweetBook.Sdk.Sample.csproj", "{4F23A18E-CB9C-45C3-879C-D982779D7FE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TweetBooks.Contracts", "TweetBooks.Contracts\TweetBooks.Contracts.csproj", "{00257053-31C0-47D4-839E-74470004F984}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{C367A516-46B3-4D6E-922F-F40DEC734197}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C367A516-46B3-4D6E-922F-F40DEC734197}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C367A516-46B3-4D6E-922F-F40DEC734197}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3512376-B0F3-4279-B4EF-DAEF441E1E45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3512376-B0F3-4279-B4EF-DAEF441E1E45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3512376-B0F3-4279-B4EF-DAEF441E1E45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3512376-B0F3-4279-B4EF-DAEF441E1E45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F23A18E-CB9C-45C3-879C-D982779D7FE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F23A18E-CB9C-45C3-879C-D982779D7FE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F23A18E-CB9C-45C3-879C-D982779D7FE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F23A18E-CB9C-45C3-879C-D982779D7FE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00257053-31C0-47D4-839E-74470004F984}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00257053-31C0-47D4-839E-74470004F984}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00257053-31C0-47D4-839E-74470004F984}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00257053-31C0-47D4-839E-74470004F984}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
