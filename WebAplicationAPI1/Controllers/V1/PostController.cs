@@ -13,6 +13,7 @@ using WebAplicationAPI1.Contracts.V1.Responses;
 using WebAplicationAPI1.Domain;
 using WebAplicationAPI1.Extentions;
 using WebAplicationAPI1.Services;
+using WebAplicationAPI1.cache;
 
 namespace WebAplicationAPI1.Controllers.V1
 {
@@ -36,13 +37,17 @@ namespace WebAplicationAPI1.Controllers.V1
         #endregion
         #region Main Hanlders
         [HttpGet(ApiRoutes.Posts.GetAll)]
+        [Cached(600)]
+
         [Authorize(Policy = "MustWorkForThetinh")]
         public async Task<IActionResult> GetAll()
         {
             var posts = await _postService.GetAll_Async();
             return Ok(_mapper.Map<List<PostResponse>>(posts));
         }
+
         [HttpGet(ApiRoutes.Posts.Get)]
+        [Cached(600)]
         public async Task<IActionResult> Get([FromRoute] Guid postId)
         {
             var post = await _postService.Get_Async(postId);

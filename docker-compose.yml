@@ -1,0 +1,32 @@
+
+version: '3.5'
+
+networks:
+  localdev:
+    name: localdev
+    
+services:
+  main-api:
+    build: WebAplicationAPI1/
+    restart: always
+    ports:
+      - "7000:80"
+    depends_on:
+      - db-server
+    networks:
+      - localdev
+        
+  db-server:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: db-server
+    volumes:
+      - ./data:/var/opt/mssql/data
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Abc.123
+      - MSSQL_TCP_PORT=1433
+    ports:
+      - "1433:1433"
+    networks:
+      - localdev
+  
