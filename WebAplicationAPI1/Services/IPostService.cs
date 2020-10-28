@@ -8,7 +8,7 @@ namespace WebAplicationAPI1.Services
 {
      public interface IPostService
     {
-        Task<List<Post>> GetAll_Async();
+        Task<List<Post>> GetAll_Async(PaginationFilter paginationFilter=null);
         Task<Post> Get_Async(Guid postId);
         Task<bool> UpdatePost_Async(Post updatePost);
         Task<bool> DeletePost_Async(Guid postId);

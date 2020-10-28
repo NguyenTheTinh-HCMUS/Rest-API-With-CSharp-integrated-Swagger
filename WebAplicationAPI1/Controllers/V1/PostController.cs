@@ -14,23 +14,27 @@ using WebAplicationAPI1.Domain;
 using WebAplicationAPI1.Extentions;
 using WebAplicationAPI1.Services;
 using WebAplicationAPI1.cache;
+using TweetBooks.Contracts.Contracts.V1.Responses;
+using TweetBooks.Contracts.Contracts.V1.Requests.querries;
 
 namespace WebAplicationAPI1.Controllers.V1
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PostController : Controller
     {
         #region Properties
         private readonly IPostService _postService;
         private readonly IMapper _mapper;
+        private readonly IUriService _uriService;
 
 
         #endregion
         #region Contructors
-        public PostController(IPostService postService,IMapper mapper)
+        public PostController(IPostService postService,IMapper mapper, IUriService uriService)
         {
             _postService = postService;
             _mapper = mapper;
+            _uriService = uriService;
 
         }
 
@@ -39,11 +43,30 @@ namespace WebAplicationAPI1.Controllers.V1
         [HttpGet(ApiRoutes.Posts.GetAll)]
         [Cached(600)]
 
-        [Authorize(Policy = "MustWorkForThetinh")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery]PaginationQuerry paginationQuerry)
         {
-            var posts = await _postService.GetAll_Async();
-            return Ok(_mapper.Map<List<PostResponse>>(posts));
+            var pagination = _mapper.Map<PaginationFilter>(paginationQuerry);
+            var posts = await _postService.GetAll_Async(pagination);
+
+            var postResponse = _mapper.Map<List<PostResponse>>(posts);
+
+            if (paginationQuerry == null || paginationQuerry.PageNumber<1 || paginationQuerry.PageSize<1)
+            {
+                return Ok(new PageResponse<PostResponse>(postResponse));
+
+            }
+            var nextPage = pagination.PageNumber >= 1 ? _uriService.GetAllPostsUri(new PaginationQuerry { PageNumber = pagination.PageNumber+1, PageSize = pagination.PageSize }).ToString():null;
+            var previousPage= pagination.PageNumber - 1 >= 1 ? _uriService.GetAllPostsUri(new PaginationQuerry { PageNumber = pagination.PageNumber -1, PageSize = pagination.PageSize }).ToString() : null;
+
+
+            var paginationResponse = new PageResponse<PostResponse> { 
+                Data=postResponse,
+                PageNumber=pagination.PageNumber,
+                PageSize=pagination.PageSize,
+                NextPage=postResponse.Any() ? nextPage : null,
+                PreviousPage=previousPage
+            };
+            return Ok(paginationResponse);
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
@@ -55,9 +78,10 @@ namespace WebAplicationAPI1.Controllers.V1
             {
                 return NotFound();
             }
-            return Ok(_mapper.Map<PostResponse>(post));
+            return Ok(new Response<PostResponse>(_mapper.Map<PostResponse>(post)));
 
         }
+        [Authorize(Policy = "MustWorkForThetinh")]
         [HttpPut(ApiRoutes.Posts.Update)]
         public async Task<IActionResult> Update([FromRoute] Guid postId, [FromBody] UpdatePostRequest request)
         {
@@ -77,7 +101,7 @@ namespace WebAplicationAPI1.Controllers.V1
             {
                 return NotFound();
             }
-            return Ok(_mapper.Map<PostResponse>(post));
+            return Ok( new Response<PostResponse>(_mapper.Map<PostResponse>(post)));
 
         }
         /// <summary>
@@ -108,7 +132,7 @@ namespace WebAplicationAPI1.Controllers.V1
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
             //var response = new PostResponse { Id = post.Id };
-            return Created(locationUri, _mapper.Map<PostResponse>(post));
+            return Created(locationUri, new Response<PostResponse>(_mapper.Map<PostResponse>(post)));
 
         }
         [HttpDelete(ApiRoutes.Posts.Delete)]

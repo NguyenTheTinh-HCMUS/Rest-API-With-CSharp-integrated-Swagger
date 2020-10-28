@@ -45,9 +45,18 @@ namespace WebAplicationAPI1.Services
             return await _dataContext.Posts.Include(x=>x.Tags).SingleOrDefaultAsync(x => x.Id == postId);
         }
 
-        public async Task<List<Post>> GetAll_Async()
+        public async Task<List<Post>> GetAll_Async(PaginationFilter paginationFilter=null)
         {
-            return await _dataContext.Posts.Include(x=>x.Tags).ToListAsync();
+            if (paginationFilter == null)
+            {
+                return await _dataContext.Posts.Include(x => x.Tags).ToListAsync();
+
+            }
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+            return await _dataContext.Posts.Include(x => x.Tags).
+                Skip(skip).Take(paginationFilter.PageSize).
+                ToListAsync();
+
         }
 
         public async Task<bool> UpdatePost_Async(Post updatePost)

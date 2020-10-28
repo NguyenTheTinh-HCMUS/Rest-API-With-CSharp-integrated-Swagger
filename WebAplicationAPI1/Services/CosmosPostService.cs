@@ -36,7 +36,7 @@ namespace WebAplicationAPI1.Services
             throw new NotImplementedException();
         }
 
-        public async Task<List<Post>> GetAll_Async()
+        public async Task<List<Post>> GetAll_Async(PaginationFilter paginationFilter)
         {
             var posts = await _cosmosStore.Query().ToListAsync();
             return posts.Select(x => new Post { Id = Guid.Parse(x.Id), Name = x.Name }).ToList();
